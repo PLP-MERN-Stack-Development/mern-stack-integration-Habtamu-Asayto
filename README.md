@@ -35,7 +35,7 @@ mern-blog/
 │   ├── server.js           # Main server file
 │   └── package.json        # Server dependencies
 └── README.md               # Project documentation
-```
+``` 
 
 ## Getting Started
 
