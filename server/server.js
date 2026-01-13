@@ -1,16 +1,19 @@
 // server.js - Main server file for the MERN blog application
 
-// Import required modules
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const path = require('path');
+import express from "express";
+import mongoose from "mongoose";
+import cors from "cors";
+import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 
-// // Import routes
-// const postRoutes = require('./routes/posts');
-// const categoryRoutes = require('./routes/categories');
-// const authRoutes = require('./routes/auth');
+import postRoutes from "./routes/postRoutes.js";
+import categoryRoutes from "./routes/categoryRoutes.js";
+import errorHandler from "./middleware/errorMiddleware.js";
+
+// ES module fix for __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Load environment variables
 dotenv.config();
@@ -25,34 +28,27 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve uploaded files
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Log requests in development mode
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === "development") {
   app.use((req, res, next) => {
     console.log(`${req.method} ${req.url}`);
     next();
   });
 }
 
-// // API routes
-// app.use('/api/posts', postRoutes);
-// app.use('/api/categories', categoryRoutes);
-// app.use('/api/auth', authRoutes);
+// API routes
+app.use("/api/posts", postRoutes);
+app.use("/api/categories", categoryRoutes);
 
 // Root route
-app.get('/', (req, res) => {
-  res.send('MERN Blog API is running');
+app.get("/", (req, res) => {
+  res.send("MERN Blog API is running");
 });
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(err.statusCode || 500).json({
-    success: false,
-    error: err.message || 'Server Error',
-  });
-});
+// Error middleware (must be last)
+app.use(errorHandler);
 
 // Connect to MongoDB and start server
 mongoose
@@ -64,15 +60,14 @@ mongoose
     });
   })
   .catch((err) => {
-    console.error("Failed to connect to MongoDB", err);
+    console.error(" Failed to connect to MongoDB", err);
     process.exit(1);
   });
 
 // Handle unhandled promise rejections
-process.on('unhandledRejection', (err) => {
-  console.error('Unhandled Promise Rejection:', err);
-  // Close server & exit process
+process.on("unhandledRejection", (err) => {
+  console.error("Unhandled Promise Rejection:", err);
   process.exit(1);
 });
 
-module.exports = app; 
+export default app;
